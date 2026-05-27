@@ -704,6 +704,12 @@ function startLobbyPoll(){
     if(!gs.gameId)return;
     await refreshMultiplayerPlayers();
     updateLobbyUI();
+    if(!gs.boardStarted){
+      const gameRes=await sb.from('games').select('status,turn').eq('id',gs.gameId).single();
+      if(gameRes.data?.status==='active'){
+        await bootstrapMultiplayerBoard();
+      }
+    }
   },2000);
 }
 
