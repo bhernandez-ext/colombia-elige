@@ -915,8 +915,10 @@ async function refreshOwnPlayerResources(){
 }
 
 async function hostStartGame(){
-  if(!gs.isHost||!gs.gameId)return;
+  const statusEl=el('lobbyStatus');
   const btn=el('lobbyStartBtn');
+  if(!gs.gameId){if(statusEl)statusEl.textContent='Error: sala no encontrada. Recarga.';return;}
+  if(!gs.isHost){if(statusEl)statusEl.textContent='Solo el host puede iniciar.';return;}
   if(btn){btn.disabled=true;btn.textContent='Iniciando...';}
   try{
     await refreshMultiplayerPlayers();
@@ -933,7 +935,7 @@ async function hostStartGame(){
     await bootstrapMultiplayerBoard();
   }catch(err){
     if(btn){btn.disabled=false;btn.textContent='Reintentar';}
-    log(err?.message||'No se pudo iniciar la partida.','s');
+    if(statusEl)statusEl.textContent=err?.message||'Error al iniciar. Intenta de nuevo.';
   }
 }
 
