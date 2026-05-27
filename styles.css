@@ -557,19 +557,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text)}
 }
 
 @media (max-width: 960px){
+  /* Home: siempre full-screen poster, nunca panel lateral */
+  .home-mobile-panel{display:none!important}
+  .home-multi-pill{display:flex}
+  .home-desktop-actions{display:flex}
+  .poster-hit{display:block}
+
+  /* Game en tablet/portrait: stack vertical */
   html,body{overflow:auto}
-  #home{
-    position:relative;display:block;padding:0;overflow:auto;
-    background:linear-gradient(180deg,#F5F7FC,#EEF1F8);
-  }
-  .home-poster-shell{
-    height:auto;padding:.85rem .85rem 0;
-  }
-  .home-poster{
-    width:100%;max-width:none;border-radius:20px;box-shadow:0 14px 40px rgba(26,32,56,.14);
-  }
-  .home-multi-pill,.poster-hit,.home-desktop-actions{display:none}
-  .home-mobile-panel{display:block}
   #game{height:auto;min-height:100vh;grid-template-columns:1fr;grid-template-rows:50px 260px minmax(420px,58vh) auto}
   #topbar{flex-wrap:wrap;align-content:center;padding:.45rem .8rem;row-gap:.35rem;height:auto;min-height:50px}
   #lpanel,#rpanel{border:none;box-shadow:none}
