@@ -399,6 +399,8 @@ function initHome(){
 
 function goHome(){
   clearTimers();
+  stopLobbyPoll();
+  stopTurnWaitPoll();
   hideWaitModal();
   closeMultiModal();
   closeLobbyModal();
@@ -406,6 +408,9 @@ function goHome(){
   el('game').classList.remove('on');
   el('setup').classList.remove('on');
   el('home').style.display='flex';
+  if(gs.realtimeChannel){gs.realtimeChannel.unsubscribe();gs.realtimeChannel=null;}
+  gs.gameId=null;gs.playerId=null;gs.roomCode='';gs.isHost=false;
+  gs.boardStarted=false;gs.aiSlots=new Set();gs.multiPlayers=[];
 }
 
 function goSetup(mode='single'){
@@ -804,7 +809,10 @@ async function startGame(){
       await startMultiplayerFlow();
     }
   }catch(error){
-    log(error?.message||'No pudimos iniciar la partida.','s');
+    const msg=error?.message||'No pudimos iniciar la partida.';
+    const hint=el('setupRoomHint');
+    if(hint)hint.textContent=msg;
+    log(msg,'s');
   }finally{
     start.disabled=false;
   }
