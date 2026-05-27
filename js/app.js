@@ -810,9 +810,10 @@ async function startGame(){
     }
   }catch(error){
     const msg=error?.message||'No pudimos iniciar la partida.';
+    const sub=el('setupSub');
+    if(sub){sub.textContent='⚠ '+msg;sub.style.color='var(--red)';sub.style.fontWeight='600';}
     const hint=el('setupRoomHint');
-    if(hint)hint.textContent=msg;
-    log(msg,'s');
+    if(hint){hint.textContent=msg;hint.style.background='rgba(204,34,34,.12)';hint.style.color='var(--red)';}
   }finally{
     start.disabled=false;
   }
