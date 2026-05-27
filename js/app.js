@@ -128,6 +128,7 @@ const gs={
 const undoStack=[];
 let svgSel,pathGen;
 let lobbyPollInt=null;
+let turnWaitPollInt=null;
 const coordCache={};
 
 function el(id){return document.getElementById(id);}
@@ -696,6 +697,33 @@ function prepareJoinRoom(){
   }
   gs.pendingJoinCode=code;
   goSetup('multi-join');
+}
+
+function startTurnWaitPoll(){
+  stopTurnWaitPoll();
+  let ticks=0;
+  turnWaitPollInt=setInterval(async()=>{
+    if(!gs.gameId||gs.isPlayerTurn)return;
+    const gameRes=await sb.from('games').select('turn,status').eq('id',gs.gameId).single();
+    if(!gameRes.data||gameRes.data.status!=='active')return;
+    if(gameRes.data.turn!==gs.turn){
+      stopTurnWaitPoll();
+      await onGameUpdate(gameRes.data);
+      return;
+    }
+    ticks++;
+    if(ticks%5===0){
+      fetch(`${APP_CONFIG.supabaseUrl}/functions/v1/resolve-turn`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${APP_CONFIG.supabaseAnonKey}`},
+        body:JSON.stringify({game_id:gs.gameId}),
+      }).catch(()=>{});
+    }
+  },2000);
+}
+
+function stopTurnWaitPoll(){
+  if(turnWaitPollInt){clearInterval(turnWaitPollInt);turnWaitPollInt=null;}
 }
 
 function startLobbyPoll(){
@@ -1315,6 +1343,7 @@ function beginPlayerTurn(){
 }
 
 function _beginPlayerTurnCore(){
+  stopTurnWaitPoll();
   const evento=sortearEvento();
   if(evento){
     liberarGruposPorEvento(evento);
@@ -1349,6 +1378,7 @@ async function endPlayerTurn(){
     showWaitModal('Esperando a que el rival termine su jugada…');
     try{
       await submitTurn(gs.turnActions);
+      startTurnWaitPoll();
     }catch(error){
       hideWaitModal();
       gs.isPlayerTurn=true;
