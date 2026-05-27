@@ -511,12 +511,23 @@ html,body{height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:v
 .coali-arrow{font-size:1.2rem;color:var(--muted);text-align:center}
 .coali-msg{font-size:.76rem;color:var(--muted);line-height:1.4}
 /* win card */
-.win-card{text-align:center}
-.win-card .wtitle{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
-.win-card .wsub{color:var(--muted);font-size:.85rem;margin-bottom:1rem;line-height:1.6}
-.win-card .wcand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;margin-bottom:.15rem;text-transform:uppercase;letter-spacing:.04em}
-.win-card .wpct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:3.5rem;margin-bottom:.15rem}
-.win-card .wvotes{font-size:.8rem;color:var(--muted);margin-bottom:1.3rem}
+.win-card{text-align:center;max-height:88vh;overflow-y:auto}
+.win-card .wtitle{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.04em}
+.win-card .wsub{color:var(--muted);font-size:.82rem;margin-bottom:.9rem;line-height:1.5}
+.win-winner-block{margin-bottom:1rem}
+.wwinner-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.1rem}
+.wwinner-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:3rem;line-height:1}
+.wwinner-votes{font-size:.75rem;color:var(--muted);margin-top:.15rem;margin-bottom:.15rem}
+.win-ranking{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.2rem;text-align:left}
+.vrank-row{display:grid;grid-template-columns:1.4rem .65rem 4.5rem 1fr 3rem;align-items:center;gap:.4rem;padding:.3rem .5rem;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid transparent}
+.vrank-winner{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
+.vrank-player{outline:2px solid rgba(255,255,255,.25);outline-offset:-2px}
+.vrank-medal{font-size:.9rem;text-align:center}
+.vrank-dot{width:.55rem;height:.55rem;border-radius:50%;flex-shrink:0}
+.vrank-name{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.88rem;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrank-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.vrank-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.vrank-pct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;text-align:right;white-space:nowrap}
 /* undo feedback */
 #undo-notice{position:fixed;bottom:1rem;right:1rem;background:var(--text);color:#fff;border-radius:6px;padding:.4rem .9rem;font-size:.74rem;z-index:50;opacity:0;transition:opacity .3s;pointer-events:none}
 #undo-notice.vis{opacity:1}

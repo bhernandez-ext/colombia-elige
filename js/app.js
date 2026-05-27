@@ -1781,22 +1781,71 @@ function getLeader(){
 function showWin(wId,phase){
   clearTimers();
   hideWaitModal();
-  const c=CANDS[wId];
-  const pct=getPct(wId);
-  const isP=wId===gs.pId;
-  el('vtitle').textContent=isP?'¡Ganaste!':'Perdiste';
-  el('vtitle').style.color=isP?'var(--green)':'var(--red)';
-  let reason='';
-  if(phase==='first'&&pct>50)reason=`${c.n} superó el 50% del electorado al final de la primera vuelta.`;
-  else if(phase==='second')reason=`Segunda vuelta finalizada. ${c.n} lidera el conteo.`;
-  else if(phase==='multi')reason=`La sala terminó. ${c.n} quedó arriba en el mapa final.`;
-  else reason=`${c.n} lidera el resultado final.`;
-  el('vsub').textContent=reason;
-  el('vcname').textContent=c.n;
-  el('vcname').style.color=c.color;
-  el('vpct').textContent=`${pct.toFixed(1)}%`;
-  el('vpct').style.color=c.color;
-  el('vvotes').textContent=`≈ ${fmtV(pct)} votos estimados`;
+
+  const allIds=[...new Set([...gs.activeIds,...gs.eliminatedIds])];
+  const ranking=allIds
+    .map(id=>({id,pct:getPct(id)}))
+    .sort((a,b)=>b.pct-a.pct);
+
+  const winner=ranking[0];
+  const wc=CANDS[winner.id];
+  const playerPos=ranking.findIndex(r=>r.id===gs.pId)+1;
+  const isMulti=isMultiMode();
+
+  const TITLES={
+    1:['¡A la Casa de Nariño!','Presidente de Colombia'],
+    2:['Segunda vuelta','A un paso de la presidencia'],
+    3:['Tercer lugar','La campaña no alcanzó'],
+    4:['Cuarto lugar','Fuera de la contienda'],
+  };
+  const posLabel=TITLES[playerPos]||TITLES[4];
+
+  let headline,sub;
+  if(!gs.pId||!isMulti){
+    if(phase==='first'&&winner.pct>50){
+      headline=`${wc.short} a la Casa de Nariño`;
+      sub=`Superó el 50% en primera vuelta con ${winner.pct.toFixed(1)}% del electorado.`;
+    } else if(phase==='second'){
+      headline=`${wc.short} gana la segunda vuelta`;
+      sub=`Con ${winner.pct.toFixed(1)}%, ${wc.n} se impone en el balotaje final.`;
+    } else {
+      headline=`${wc.short} lidera la contienda`;
+      sub=`La campaña cerró con ${wc.n} al frente con ${winner.pct.toFixed(1)}%.`;
+    }
+    el('vtitle').style.color=wc.color;
+  } else {
+    headline=posLabel[0];
+    sub=posLabel[1];
+    const colors={1:'var(--green)',2:'#F0B429',3:'var(--muted)',4:'var(--muted)'};
+    el('vtitle').style.color=colors[playerPos]||'var(--muted)';
+  }
+
+  el('vtitle').textContent=headline;
+  el('vsub').textContent=sub;
+
+  const wPct=winner.pct;
+  el('vcname').textContent=wc.n.toUpperCase();
+  el('vcname').style.color=wc.color;
+  el('vpct').textContent=`${wPct.toFixed(1)}%`;
+  el('vpct').style.color=wc.color;
+  el('vvotes').textContent=`≈ ${fmtV(wPct)} votos estimados`;
+
+  const rankEl=el('vranking');
+  const medals=['🥇','🥈','🥉','4°','5°'];
+  rankEl.innerHTML=ranking.map((r,i)=>{
+    const rc=CANDS[r.id];
+    const isWinner=i===0;
+    const isPlayer=r.id===gs.pId;
+    const barW=Math.min(r.pct/Math.max(wPct,1)*100,100);
+    return `<div class="vrank-row${isWinner?' vrank-winner':''}${isPlayer?' vrank-player':''}">
+      <span class="vrank-medal">${medals[i]||'·'}</span>
+      <span class="vrank-dot" style="background:${rc.color}"></span>
+      <span class="vrank-name">${rc.short}</span>
+      <div class="vrank-bar"><div class="vrank-fill" style="width:${barW}%;background:${rc.color}"></div></div>
+      <span class="vrank-pct" style="color:${rc.color}">${r.pct.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+
   el('vmodal').classList.add('on');
 }
 
