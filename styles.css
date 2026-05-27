@@ -596,3 +596,90 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text)}
 
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ══ ROTATE OVERLAY ══ */
+#rotate-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:9999;
+  background:var(--text);
+  flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+}
+.rotate-inner{display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:2rem}
+.rotate-icon{
+  font-size:3.5rem;color:rgba(255,255,255,.9);
+  animation:rotatehint 1.6s ease-in-out infinite;
+}
+@keyframes rotatehint{
+  0%,100%{transform:rotate(0deg)}
+  40%{transform:rotate(90deg)}
+  60%{transform:rotate(90deg)}
+}
+.rotate-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:800;
+  color:#fff;letter-spacing:.06em;text-transform:uppercase;
+}
+.rotate-sub{font-size:.9rem;color:rgba(255,255,255,.6);text-align:center}
+
+/* Mostrar overlay solo en portrait + pantalla chica */
+@media (orientation:portrait) and (max-width:768px){
+  #rotate-overlay{display:flex}
+}
+
+/* ══ LANDSCAPE MÓVIL ══ */
+@media (orientation:landscape) and (max-height:520px){
+  html,body{overflow:hidden}
+
+  /* Home: poster compacto */
+  #home{padding:6px}
+  .home-poster{border-radius:10px}
+  .home-mobile-panel{display:none}
+  .home-multi-pill,.home-desktop-actions{display:none}
+  .home-poster-shell{padding:0}
+
+  /* Topbar más delgado */
+  #topbar{min-height:40px;padding:0 .6rem;gap:.5rem}
+  .tbar-logo{font-size:.82rem}
+  .timer-ring{width:26px;height:26px;font-size:.75rem}
+  .end-btn,.tbtn{padding:.22rem .55rem;font-size:.66rem}
+  .tv-bar{width:34px}
+  .tv-name{display:none}
+
+  /* Game: 3 columnas, filas compactas */
+  #game{
+    height:100vh;
+    grid-template-rows:40px 1fr;
+    grid-template-columns:200px 1fr 220px;
+  }
+
+  /* Paneles laterales compactos */
+  #lpanel{padding:.4rem .45rem;gap:.4rem}
+  #rpanel{}
+  #dpanel{padding:.45rem}
+
+  /* Ocultar secciones pesadas en lateral izquierdo */
+  #focusCard,#candidateStrip{display:none}
+
+  /* Rankings más compactos */
+  .rank-row{padding:.22rem .3rem}
+  .rname{font-size:.62rem}
+  .rpct{font-size:.6rem}
+  .rvotes{display:none}
+  .slabel{font-size:.55rem;margin-bottom:.2rem}
+
+  /* Mapa llena el espacio disponible */
+  #mapc{min-height:0}
+
+  /* Modales más pequeños */
+  .mcard{padding:1rem;max-height:85vh}
+  .sondeo-pregunta{font-size:1.1rem;margin-bottom:.8rem}
+  .sondeo-opcion{padding:.5rem .75rem;font-size:.82rem}
+
+  /* Setup en landscape */
+  #setup{padding:.75rem .75rem 1rem;gap:.75rem}
+  .s-title{font-size:2.4rem}
+  .cand-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:.55rem;padding:0 .5rem}
+  .cand-photo{height:120px}
+  .cand-body{padding:.4rem .5rem .55rem}
+  .cand-name{font-size:.82rem;min-height:auto}
+  .cand-summary{display:none}
+}
