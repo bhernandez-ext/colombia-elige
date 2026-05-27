@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Studio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #eef1f7;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+
+    main {
+      display: grid;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    #status {
+      font-size: 14px;
+      color: #334155;
+      text-align: center;
+    }
+
+    canvas {
+      background: white;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="status">Preparando assets…</div>
+    <canvas id="candidates" width="1500" height="440"></canvas>
+    <canvas id="home" width="1800" height="1080"></canvas>
+  </main>
+  <script src="./generated/portraits.js"></script>
+  <script>
+    const order = ["cepeda", "abelardo", "paloma", "fajardo", "claudia"];
+    const swatch = ["#b91c1c", "#c2410c", "#1d4ed8", "#047857", "#7c3aed"];
+
+    const candidatesCanvas = document.getElementById("candidates");
+    const homeCanvas = document.getElementById("home");
+    const status = document.getElementById("status");
+    const cCtx = candidatesCanvas.getContext("2d");
+    const hCtx = homeCanvas.getContext("2d");
+
+    function cover(ctx, img, dx, dy, dw, dh) {
+      const scale = Math.max(dw / img.width, dh / img.height);
+      const sw = dw / scale;
+      const sh = dh / scale;
+      const sx = (img.width - sw) / 2;
+      const sy = Math.max(0, (img.height - sh) / 5);
+      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
+
+    async function boot() {
+      const portraits = window.PORTRAITS || {};
+      const items = await Promise.all(order.map((name) => new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ name, img });
+        img.onerror = reject;
+        img.src = portraits[name];
+      })));
+
+      cCtx.fillStyle = "#e9edf5";
+      cCtx.fillRect(0, 0, candidatesCanvas.width, candidatesCanvas.height);
+      items.forEach(({ img }, index) => {
+        const cardX = index * 300;
+        cCtx.fillStyle = "#ffffff";
+        cCtx.fillRect(cardX + 10, 10, 280, 420);
+        cover(cCtx, img, cardX + 16, 16, 268, 392);
+        cCtx.fillStyle = swatch[index];
+        cCtx.fillRect(cardX + 16, 394, 268, 14);
+        cCtx.fillStyle = "rgba(8, 15, 30, 0.08)";
+        cCtx.fillRect(cardX + 16, 408, 268, 6);
+      });
+
+      const gradient = hCtx.createLinearGradient(0, 0, 1800, 1080);
+      gradient.addColorStop(0, "#f8fafc");
+      gradient.addColorStop(0.52, "#e6ebf5");
+      gradient.addColorStop(1, "#d7deea");
+      hCtx.fillStyle = gradient;
+      hCtx.fillRect(0, 0, homeCanvas.width, homeCanvas.height);
+
+      hCtx.save();
+      hCtx.globalAlpha = 0.22;
+      for (let i = 0; i < 18; i += 1) {
+        const x = (i % 6) * 320 + 60;
+        const y = Math.floor(i / 6) * 260 + 40;
+        hCtx.beginPath();
+        hCtx.arc(x, y, 2.2, 0, Math.PI * 2);
+        hCtx.fillStyle = "#1f2937";
+        hCtx.fill();
+      }
+      hCtx.restore();
+
+      hCtx.save();
+      hCtx.fillStyle = "rgba(255,255,255,0.78)";
+      hCtx.beginPath();
+      hCtx.moveTo(0, 140);
+      hCtx.quadraticCurveTo(520, 20, 980, 180);
+      hCtx.quadraticCurveTo(1420, 320, 1800, 120);
+      hCtx.lineTo(1800, 0);
+      hCtx.lineTo(0, 0);
+      hCtx.closePath();
+      hCtx.fill();
+      hCtx.restore();
+
+      items.forEach(({ img }, index) => {
+        const width = 360;
+        const height = 500;
+        const x = 80 + index * 335;
+        const y = 240 + (index % 2 === 0 ? -12 : 22);
+        hCtx.save();
+        hCtx.filter = "saturate(1.08) contrast(1.04)";
+        cover(hCtx, img, x, y, width, height);
+        hCtx.restore();
+        hCtx.fillStyle = `${swatch[index]}26`;
+        hCtx.fillRect(x, y + height - 16, width, 16);
+      });
+
+      const overlay = hCtx.createLinearGradient(0, 0, 0, 1080);
+      overlay.addColorStop(0, "rgba(248,250,252,0.06)");
+      overlay.addColorStop(0.45, "rgba(248,250,252,0.08)");
+      overlay.addColorStop(1, "rgba(15,23,42,0.32)");
+      hCtx.fillStyle = overlay;
+      hCtx.fillRect(0, 0, homeCanvas.width, homeCanvas.height);
+
+      hCtx.fillStyle = "rgba(15,23,42,0.16)";
+      hCtx.fillRect(0, 878, homeCanvas.width, 4);
+      hCtx.fillStyle = "#fcd116";
+      hCtx.fillRect(0, 882, homeCanvas.width, 112);
+      hCtx.fillStyle = "#003893";
+      hCtx.fillRect(0, 994, homeCanvas.width, 44);
+      hCtx.fillStyle = "#ce1126";
+      hCtx.fillRect(0, 1038, homeCanvas.width, 42);
+
+      hCtx.save();
+      hCtx.globalAlpha = 0.08;
+      hCtx.strokeStyle = "#0f172a";
+      hCtx.lineWidth = 2;
+      for (let i = 0; i < 5; i += 1) {
+        hCtx.beginPath();
+        hCtx.moveTo(120 + i * 80, 120);
+        hCtx.quadraticCurveTo(420 + i * 120, 260 + i * 25, 720 + i * 180, 220 + i * 36);
+        hCtx.stroke();
+      }
+      hCtx.restore();
+
+      window.__ready = true;
+      status.textContent = "Assets listos.";
+    }
+
+    boot().catch((error) => {
+      console.error(error);
+      window.__error = String(error);
+      status.textContent = `Error: ${error}`;
+    });
+  </script>
+</body>
+</html>

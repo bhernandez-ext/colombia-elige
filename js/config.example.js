@@ -1,0 +1,4 @@
+window.ColombiaEligeConfig = {
+  supabaseUrl: "",
+  supabaseAnonKey: "",
+};

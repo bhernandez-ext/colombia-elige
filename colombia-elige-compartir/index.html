@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colombia Elige — Estrategia Electoral 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="home">
+    <div class="home-poster-shell">
+      <div class="home-poster">
+        <img class="home-poster-art" src="./assets/home-designed-reference.png" alt="Portada Colombia Elige">
+        <button class="home-multi-pill" id="homeMultiBtn" onclick="openMultiModal()">⚡ Multijugador</button>
+        <button class="poster-hit poster-hit-cta" onclick="goSetup('single')" aria-label="Nueva campaña"></button>
+        <button class="poster-hit poster-hit-candidates" onclick="goSetup('single')" aria-label="Candidatos"></button>
+        <button class="poster-hit poster-hit-rules" onclick="showHow()" aria-label="Reglas"></button>
+        <button class="poster-hit poster-hit-multi" onclick="openMultiModal()" aria-label="Multijugador"></button>
+      </div>
+    </div>
+    <div class="home-mobile-panel">
+      <div class="s-flag">
+        <div style="width:48px;background:#FCD116"></div>
+        <div style="width:24px;background:#003893"></div>
+        <div style="width:24px;background:#CE1126"></div>
+      </div>
+      <div class="s-eyebrow">Elecciones Presidenciales · Colombia 2026</div>
+      <div class="home-mobile-title">Colombia <span>Elige</span></div>
+      <p class="home-mobile-sub">Activa grupos de interés, acumula capital político y lleva a tu candidato al 50%+1.</p>
+      <div class="home-mobile-actions">
+        <button class="h-cta" onclick="goSetup('single')">Nueva campaña</button>
+        <button class="h-icb" onclick="goSetup('single')">
+          <span class="h-ici">👥</span>
+          <span class="h-icl">Candidatos</span>
+        </button>
+        <button class="h-icb" onclick="showHow()">
+          <span class="h-ici">📖</span>
+          <span class="h-icl">Reglas</span>
+        </button>
+        <button class="h-icb" id="homeMultiBtnMobile" onclick="openMultiModal()">
+          <span class="h-ici">⚡</span>
+          <span class="h-icl">Multijugador</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="setup">
+    <div class="s-flag">
+      <div style="width:48px;background:#FCD116"></div>
+      <div style="width:24px;background:#003893"></div>
+      <div style="width:24px;background:#CE1126"></div>
+    </div>
+    <div class="s-eyebrow">Configura tu candidatura</div>
+    <div class="setup-headline">
+      <div class="s-title">Colombia <span>Elige</span></div>
+      <div class="setup-pills">
+        <span class="setup-pill" id="setupModeLabel">1 vs IA</span>
+        <span class="setup-pill soft" id="setupRoomHint">Elige tu candidato para arrancar.</span>
+      </div>
+    </div>
+    <div class="s-sub" id="setupSub">Activa grupos de interés en los 33 departamentos, administra capital político y empuja a tu candidato hasta el 50%+1.</div>
+    <div class="cand-grid" id="cgrid"></div>
+    <div class="setup-btns">
+      <button class="how-setup-btn" onclick="goHome()">Volver</button>
+      <button class="how-setup-btn" onclick="showHow()">¿Cómo se juega?</button>
+      <button class="start-btn" id="sbtn" onclick="startGame()">Iniciar campaña</button>
+    </div>
+  </div>
+
+  <div id="game">
+    <div id="topbar">
+      <div class="tbar-logo">Colombia <span>Elige</span></div>
+      <div class="tbar-sep"></div>
+      <div class="phase-tag" id="modepill">1 vs IA</div>
+      <div class="room-chip" id="roomchip">Sala <b id="roomcodeview">------</b></div>
+      <div class="tbar-turn">Turno <b id="tnum">1</b>/<b id="tmax">10</b></div>
+      <div class="phase-tag" id="ptag">Primera Vuelta</div>
+      <div class="timer-ring" id="tring">120</div>
+      <div class="ai-chip" id="aitag"><div class="ai-dot"></div><span id="aiwho"></span></div>
+      <div class="tbar-votes" id="tvotes"></div>
+      <div class="tbar-right">
+        <button class="tbtn" onclick="showHow()">Reglas</button>
+        <button class="tbtn danger" id="undobtn" onclick="undoAction()" disabled title="Deshacer último movimiento">↩ Deshacer</button>
+        <button class="tbtn" onclick="confirmHome()">← Inicio</button>
+        <button class="end-btn" id="endbtn" onclick="endPlayerTurn()" disabled>Finalizar Turno</button>
+      </div>
+    </div>
+
+    <div id="lpanel">
+      <div class="pcard" id="pcard">
+        <div class="slabel" style="margin-bottom:.45rem">Tu candidato</div>
+        <div class="pcard-top">
+          <div class="pcard-avatar" id="pavatar"><img id="pimg" src="" alt=""></div>
+          <div class="pcard-info">
+            <div class="pname" id="pname">—</div>
+            <div class="pparty" id="pparty">—</div>
+          </div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell">
+            <div class="reslabel">Capital Político</div>
+            <div class="resval" id="pcp" style="color:var(--red)">20</div>
+          </div>
+          <div class="res-cell">
+            <div class="reslabel">Credibilidad</div>
+            <div class="resval" id="pcr" style="color:var(--green)">100</div>
+            <div class="crtrack"><div class="crfill" id="crf" style="width:100%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="slabel">Posiciones</div>
+        <div id="rankings"></div>
+      </div>
+
+      <div class="panel-block">
+        <div class="slabel">Registro</div>
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <div id="mapc">
+      <svg id="mapsvg"></svg>
+      <div id="mtt"></div>
+      <div id="aiaction"></div>
+      <div id="roundtoast"></div>
+    </div>
+
+    <div id="rpanel">
+      <div id="dpanel">
+        <div class="dempty" id="dempty">
+          <div class="dempty-i">🗺️</div>
+          <div>Haz clic en un departamento<br>para ver sus grupos de interés</div>
+        </div>
+        <div id="ddetail" style="display:none">
+          <div class="dname" id="ddn"></div>
+          <div class="dweight" id="ddw"></div>
+          <div class="dvotes" id="ddv"></div>
+          <div id="glist"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="howmodal">
+    <div class="mcard">
+      <h2>¿Cómo se juega?</h2>
+      <div class="how-s">
+        <h3>Objetivo</h3>
+        <div class="how-row">Supera el <b>50%+1 del electorado nacional</b> para ganar. Si nadie lo logra en 10 turnos, los dos más votados van a <b>segunda vuelta</b> en el modo de campaña.</div>
+      </div>
+      <div class="how-s">
+        <h3>Recursos por turno</h3>
+        <div class="how-row"><span class="htag" style="background:rgba(204,34,34,.12);color:var(--red)">CP</span><b>Capital Político:</b> recibes 10 base + 1 por cada 2% que acumules. Máximo 70. Se acumula entre turnos.</div>
+        <div class="how-row"><span class="htag" style="background:rgba(26,122,74,.12);color:var(--green)">CR</span><b>Credibilidad:</b> inicia en 100. Se pierde con concesiones (-25 cada una). Sin recuperación.</div>
+      </div>
+      <div class="how-s">
+        <h3>Acciones sobre grupos</h3>
+        <div class="how-row"><span class="htag" style="background:rgba(26,122,74,.12);color:var(--green)">Activar</span>Grupo libre. Costo según afinidad ideológica: <b style="color:var(--green)">4 CP</b> · <b>7 CP</b> · <b style="color:var(--red)">12 CP</b></div>
+        <div class="how-row"><span class="htag" style="background:rgba(27,77,192,.12);color:var(--blue)">Reforzar</span>Grupo propio. <b>3 CP</b>. En campaña, un enemigo tendrá solo 30% de chance de capturarlo.</div>
+        <div class="how-row"><span class="htag" style="background:rgba(204,34,34,.12);color:var(--red)">Atacar</span>Grupo rival. <b>6 CP</b>. En campaña, el éxito es 60% o 30% si está reforzado.</div>
+        <div class="how-row"><span class="htag" style="background:rgba(107,53,176,.12);color:var(--purple)">Concesión</span>Solo grupos libres de distancia ideológica > 3. Descuento de <b>3 CP</b> pero cuesta <b>-25 CR</b>.</div>
+      </div>
+      <div class="how-s">
+        <h3>Multijugador</h3>
+        <div class="how-row">En 1v1 ambos jugadores planean su turno al mismo tiempo. Cuando los dos finalizan, la sala resuelve las acciones y sincroniza el mapa.</div>
+      </div>
+      <button class="close-btn" onclick="closeHow()">Entendido</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="multimodal">
+    <div class="mcard" style="max-width:520px">
+      <h2>Multijugador</h2>
+      <div class="how-row" id="multiStatusText">Crea una sala privada o únete con un código de seis caracteres.</div>
+      <div class="multi-grid">
+        <button class="mode-card" onclick="prepareCreateRoom()">
+          <span class="mode-card-icon">⚑</span>
+          <strong>Crear sala</strong>
+          <span>Genera un código y espera a tu rival.</span>
+        </button>
+        <div class="mode-card join-card">
+          <span class="mode-card-icon">⌁</span>
+          <strong>Unirse a sala</strong>
+          <span>Ingresa el código que te compartieron.</span>
+          <input id="joinCodeInput" class="room-input" maxlength="6" placeholder="ABC123" />
+          <button class="mbtn" style="width:100%;margin-top:.8rem" onclick="prepareJoinRoom()">Continuar</button>
+        </div>
+      </div>
+      <button class="mbtn sec" onclick="closeMultiModal()" style="width:100%;margin-top:.8rem">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="lobbymodal">
+    <div class="mcard" style="max-width:420px;text-align:center">
+      <h2>Sala lista</h2>
+      <div class="room-code" id="lobbyCode">------</div>
+      <div class="how-row center" id="lobbyStatus">Comparte este código y espera a que se una el segundo jugador.</div>
+      <button class="mbtn" onclick="copyRoomCode()">Copiar código</button>
+      <button class="mbtn sec" onclick="location.reload()">Salir</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="waitmodal">
+    <div class="mcard" style="max-width:380px;text-align:center">
+      <h2>Resolviendo turno</h2>
+      <div class="how-row center" id="waitStatus">Esperando a que el rival termine su jugada…</div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="homemodal">
+    <div class="mcard" style="max-width:380px;text-align:center">
+      <h2>¿Volver al inicio?</h2>
+      <div style="color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;line-height:1.6">La partida actual se perderá.</div>
+      <button class="mbtn danger" onclick="location.reload()">Sí, ir al inicio</button>
+      <button class="mbtn sec" onclick="el('homemodal').classList.remove('on')">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="r2modal">
+    <div class="mcard">
+      <h2>Segunda Vuelta</h2>
+      <div id="r2sub" style="color:var(--muted);font-size:.87rem;line-height:1.6;margin-bottom:.4rem"></div>
+      <div class="r2list" id="r2list"></div>
+      <button class="mbtn" id="r2btn" onclick="continueR2()" style="width:100%;margin:.5rem 0 0"></button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="vmodal">
+    <div class="mcard win-card">
+      <div class="wtitle" id="vtitle"></div>
+      <div class="wsub" id="vsub"></div>
+      <div class="wcand" id="vcname"></div>
+      <div class="wpct" id="vpct"></div>
+      <div class="wvotes" id="vvotes"></div>
+      <button class="mbtn" onclick="location.reload()">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <div id="undo-notice">↩ Movimiento deshecho</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
