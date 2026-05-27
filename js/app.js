@@ -916,14 +916,25 @@ async function refreshOwnPlayerResources(){
 
 async function hostStartGame(){
   if(!gs.isHost||!gs.gameId)return;
-  const humanPlayers=await refreshMultiplayerPlayers();
-  const humanIds=new Set(humanPlayers.map(p=>p.candidate_id));
-  const aiCandidates=Object.keys(CANDS).filter(id=>!humanIds.has(id));
-  if(aiCandidates.length){
-    const aiRows=aiCandidates.map(id=>({game_id:gs.gameId,candidate_id:id,is_human:false,turn_done:true,cp:20,cr:100}));
-    await sb.from('players').insert(aiRows);
+  const btn=el('lobbyStartBtn');
+  if(btn){btn.disabled=true;btn.textContent='Iniciando...';}
+  try{
+    await refreshMultiplayerPlayers();
+    const humanIds=new Set(gs.multiPlayers.filter(p=>p.is_human!==false).map(p=>p.candidate_id));
+    const aiCandidates=Object.keys(CANDS).filter(id=>id!=='custom'&&!humanIds.has(id));
+    if(aiCandidates.length){
+      const res=await sb.from('players').insert(
+        aiCandidates.map(id=>({game_id:gs.gameId,candidate_id:id,is_human:false,turn_done:true,cp:20,cr:100}))
+      );
+      if(res.error)throw res.error;
+    }
+    const res=await sb.from('games').update({status:'active'}).eq('id',gs.gameId);
+    if(res.error)throw res.error;
+    await bootstrapMultiplayerBoard();
+  }catch(err){
+    if(btn){btn.disabled=false;btn.textContent='Reintentar';}
+    log(err?.message||'No se pudo iniciar la partida.','s');
   }
-  await sb.from('games').update({status:'active'}).eq('id',gs.gameId);
 }
 
 async function onPlayersChanged(){
