@@ -1047,15 +1047,14 @@ async function submitTurn(actionsThisTurn){
   }
   const playerUpdate=await sb.from('players').update({cp:gs.pCP,cr:gs.pCR,vote_boost:gs.boosts[gs.pId]||0,turn_done:true}).eq('id',gs.playerId);
   if(playerUpdate.error)throw playerUpdate.error;
-  const fnRes=await fetch(`${APP_CONFIG.supabaseUrl}/functions/v1/resolve-turn`,{
+  fetch(`${APP_CONFIG.supabaseUrl}/functions/v1/resolve-turn`,{
     method:'POST',
     headers:{
       'Content-Type':'application/json',
       'Authorization':`Bearer ${APP_CONFIG.supabaseAnonKey}`,
     },
     body:JSON.stringify({game_id:gs.gameId}),
-  });
-  if(!fnRes.ok)throw new Error('No pudimos resolver el turno de la sala.');
+  }).catch(()=>{});
 }
 
 async function syncGroups(){
