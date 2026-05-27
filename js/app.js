@@ -798,10 +798,18 @@ async function copyRoomCode(){
   }
 }
 
+function showSetupError(msg){
+  const sub=el('setupSub');
+  if(sub){sub.textContent='⚠ '+msg;sub.style.color='var(--red)';sub.style.fontWeight='600';}
+  const hint=el('setupRoomHint');
+  if(hint){hint.textContent=msg;hint.style.background='rgba(204,34,34,.12)';hint.style.color='var(--red)';}
+  console.error('[startGame error]',msg);
+}
+
 async function startGame(){
-  if(!gs.pId)return;
   const start=el('sbtn');
-  start.disabled=true;
+  if(!gs.pId){showSetupError('Selecciona un candidato primero.');return;}
+  if(start)start.disabled=true;
   try{
     if(gs.setupMode==='single'){
       startSinglePlayerGame();
@@ -809,13 +817,9 @@ async function startGame(){
       await startMultiplayerFlow();
     }
   }catch(error){
-    const msg=error?.message||'No pudimos iniciar la partida.';
-    const sub=el('setupSub');
-    if(sub){sub.textContent='⚠ '+msg;sub.style.color='var(--red)';sub.style.fontWeight='600';}
-    const hint=el('setupRoomHint');
-    if(hint){hint.textContent=msg;hint.style.background='rgba(204,34,34,.12)';hint.style.color='var(--red)';}
+    showSetupError(error?.message||'No pudimos iniciar la partida.');
   }finally{
-    start.disabled=false;
+    if(start)start.disabled=false;
   }
 }
 
@@ -883,7 +887,7 @@ async function createGame(candidateId){
       break;
     }
   }
-  if(!game)throw new Error('No pudimos crear la sala.');
+  if(!game)throw new Error('No pudimos crear la sala. Intenta de nuevo.');
   gs.gameId=game.id;
   gs.isHost=true;
   const playerRes=await sb.from('players').insert({
@@ -893,7 +897,7 @@ async function createGame(candidateId){
     cp:20,
     cr:100,
   }).select().single();
-  if(playerRes.error)throw playerRes.error;
+  if(playerRes.error)throw new Error(playerRes.error.message||'Error al crear jugador.');
   gs.playerId=playerRes.data.id;
   subscribeToGame();
   await refreshMultiplayerPlayers();
@@ -909,10 +913,10 @@ async function joinGame(code,candidateId){
   gs.roomCode=code;
   gs.isHost=game.host_token===getToken();
   const playersRes=await sb.from('players').select('*').eq('game_id',gs.gameId).eq('is_human',true);
-  if(playersRes.error)throw playersRes.error;
+  if(playersRes.error)throw new Error(playersRes.error.message||'Error al leer jugadores.');
   const players=playersRes.data||[];
   if(players.length>=game.max_players)throw new Error('La sala ya esta llena.');
-  if(players.some(player=>player.candidate_id===candidateId))throw new Error('Ese candidato ya esta ocupado en la sala.');
+  if(players.some(player=>player.candidate_id===candidateId))throw new Error('Ese candidato ya esta ocupado en la sala. Elige otro.');
   const playerRes=await sb.from('players').insert({
     game_id:gs.gameId,
     candidate_id:candidateId,
@@ -920,7 +924,7 @@ async function joinGame(code,candidateId){
     cp:20,
     cr:100,
   }).select().single();
-  if(playerRes.error)throw playerRes.error;
+  if(playerRes.error)throw new Error(playerRes.error.message||'Error al registrar jugador.');
   gs.playerId=playerRes.data.id;
   subscribeToGame();
   await refreshMultiplayerPlayers();

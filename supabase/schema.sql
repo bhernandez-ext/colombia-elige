@@ -4,8 +4,10 @@ create table games (
   phase text default 'r1',
   turn int default 1,
   max_turns int default 10,
+  max_players int not null default 4,
   status text default 'waiting',
   winner_id text,
+  host_token text,
   created_at timestamptz default now()
 );
 
