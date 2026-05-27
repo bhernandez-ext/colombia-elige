@@ -127,6 +127,7 @@ const gs={
 
 const undoStack=[];
 let svgSel,pathGen;
+let lobbyPollInt=null;
 const coordCache={};
 
 function el(id){return document.getElementById(id);}
@@ -697,6 +698,19 @@ function prepareJoinRoom(){
   goSetup('multi-join');
 }
 
+function startLobbyPoll(){
+  stopLobbyPoll();
+  lobbyPollInt=setInterval(async()=>{
+    if(!gs.gameId)return;
+    await refreshMultiplayerPlayers();
+    updateLobbyUI();
+  },2000);
+}
+
+function stopLobbyPoll(){
+  if(lobbyPollInt){clearInterval(lobbyPollInt);lobbyPollInt=null;}
+}
+
 function updateLobbyUI(){
   const list=el('lobbyPlayerList');
   if(list){
@@ -720,10 +734,12 @@ function openLobbyModal(message){
   el('lobbyCode').textContent=gs.roomCode||'------';
   el('lobbymodal').classList.add('on');
   updateLobbyUI();
+  startLobbyPoll();
 }
 
 function closeLobbyModal(){
   el('lobbymodal').classList.remove('on');
+  stopLobbyPoll();
 }
 
 function showWaitModal(message){
@@ -918,6 +934,7 @@ async function onPlayersChanged(){
 async function bootstrapMultiplayerBoard(){
   if(gs.boardStarted)return;
   gs.boardStarted=true;
+  stopLobbyPoll();
   gs.round=1;
   gs.turn=1;
   gs.maxTurns=10;
